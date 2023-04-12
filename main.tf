@@ -1,7 +1,7 @@
 locals {
   bucket_full_inventory_name   = "full-inventory"
   inventory_destination_prefix = "inventory"
-  backup_job_role              = var.backup_job_role_arn == null ? "" : regex("arn:aws:iam::(?P<account_id>\\d+):role/(?P<role_name>.+)", var.backup_job_role_arn)
+  backup_job_role              = var.backup_job_role_arn == null ? {} : regex("arn:aws:iam::(?P<account_id>\\d+):role/(?P<role_name>.+)", var.backup_job_role_arn)
   backup_job_assumed_role_arn  = var.backup_job_role_arn == null ? "" : "arn:aws:sts::${local.backup_job_role.account_id}:assumed-role/${local.backup_job_role.role_name}/*"
   backup_job_arns_to_allow     = var.backup_job_role_arn == null ? [] : [var.backup_job_role_arn, local.backup_job_assumed_role_arn]
 }
