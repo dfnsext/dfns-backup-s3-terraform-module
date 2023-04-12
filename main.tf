@@ -1,8 +1,9 @@
 locals {
   bucket_full_inventory_name   = "full-inventory"
   inventory_destination_prefix = "inventory"
-  backup_job_role              = regex("arn:aws:iam::(?P<account_id>\\d+):role/(?P<role_name>.+)", var.backup_job_role_arn)
-  backup_job_assumed_role_arn  = "arn:aws:sts::${local.backup_job_role.account_id}:assumed-role/${local.backup_job_role.role_name}/*"
+  backup_job_role              = var.backup_job_role_arn == null ? "" : regex("arn:aws:iam::(?P<account_id>\\d+):role/(?P<role_name>.+)", var.backup_job_role_arn)
+  backup_job_assumed_role_arn  = var.backup_job_role_arn == null ? "" : "arn:aws:sts::${local.backup_job_role.account_id}:assumed-role/${local.backup_job_role.role_name}/*"
+  backup_job_arns_to_allow     = var.backup_job_role_arn == null ? [] : [var.backup_job_role_arn, local.backup_job_assumed_role_arn]
 }
 
 data "aws_caller_identity" "current" {
@@ -140,11 +141,11 @@ data "aws_iam_policy_document" "this" {
     condition {
       variable = "aws:PrincipalArn"
       test     = "ArnNotLike"
-      values = concat([
-        "arn:aws:iam::${var.aws_account_id}:root",
-        var.backup_job_role_arn,
-        local.backup_job_assumed_role_arn,
-      ], var.additional_roles_with_bucket_access)
+      values = concat(
+        ["arn:aws:iam::${var.aws_account_id}:root"],
+        local.backup_job_arns_to_allow,
+        var.additional_roles_with_bucket_access
+      )
     }
     condition {
       variable = "aws:PrincipalServiceName"
