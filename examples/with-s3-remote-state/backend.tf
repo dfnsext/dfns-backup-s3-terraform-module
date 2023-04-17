@@ -11,11 +11,10 @@ provider "aws" {
   region = var.aws_region
 }
 
-remote_state {
-  backend = "s3"
-  config = {
+terraform {
+  backend "s3" {
     bucket = "terraform-remote-state" # TODO: replace with your state bucket
-    region = var.aws_region
+    region = "eu-north-1" # TODO: Update with your preferred region
     key    = "dfns-backup-bucket/terraform.tfstate"
   }
 }
