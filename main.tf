@@ -66,11 +66,6 @@ resource "aws_s3_bucket_public_access_block" "this" {
   restrict_public_buckets = true
 }
 
-resource "aws_s3_bucket_acl" "this" {
-  bucket = aws_s3_bucket.this.id
-  acl    = "private"
-}
-
 resource "aws_s3_bucket_versioning" "this" {
   bucket = aws_s3_bucket.this.id
   versioning_configuration {
@@ -91,7 +86,6 @@ resource "aws_s3_bucket_policy" "this" {
     aws_s3_bucket_inventory.full_inventory,
     aws_s3_bucket_object_lock_configuration.this,
     aws_s3_bucket_public_access_block.this,
-    aws_s3_bucket_acl.this,
     aws_s3_bucket_versioning.this,
   ]
 }
